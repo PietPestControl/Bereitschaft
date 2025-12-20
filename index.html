@@ -11,45 +11,30 @@
       background: #f4f6f8;
       margin: 0;
     }
-
-    /* FIXER KOPFBEREICH */
-    .top {
-      position: sticky;
-      top: 0;
-      z-index: 10;
+    header {
       background: #1f2937;
       color: white;
       padding: 1rem;
-    }
-
-    header h1 {
-      margin: 0 0 0.5rem 0;
       text-align: center;
     }
-
-    .search {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border-radius: 6px;
-      border: none;
-    }
-
     .container {
       max-width: 720px;
       margin: auto;
       padding: 1rem;
     }
-
+    .search {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
     .month {
       margin-top: 2rem;
     }
-
     .month h2 {
       border-bottom: 2px solid #e5e7eb;
       padding-bottom: 0.3rem;
     }
-
     .day {
       background: white;
       display: flex;
@@ -59,24 +44,14 @@
       margin: 0.4rem 0;
       border-radius: 8px;
     }
-
-    .next {
+    .today {
       border: 2px solid #16a34a;
       background: #ecfdf5;
     }
-
-    .badge {
-      font-size: 0.7rem;
-      color: #16a34a;
-      font-weight: 600;
-      margin-left: 0.5rem;
-    }
-
     .name {
       font-weight: 600;
       color: #2563eb;
     }
-
     a {
       text-decoration: none;
       background: #2563eb;
@@ -85,9 +60,8 @@
       border-radius: 6px;
       font-size: 0.85rem;
     }
-
     @media print {
-      .top, a {
+      header, .search, a {
         display: none;
       }
       body {
@@ -98,15 +72,12 @@
 </head>
 
 <body>
-
-<div class="top">
-  <header>
-    <h1>Bereitschaftsplan – Samstagsdienst 2026</h1>
-  </header>
-  <input class="search" id="search" placeholder="Name suchen …">
-</div>
+<header>
+  <h1>Bereitschaftsplan – Samstagsdienst 2026</h1>
+</header>
 
 <div class="container">
+  <input class="search" id="search" placeholder="Name suchen …">
   <div id="plan"></div>
 </div>
 
@@ -116,20 +87,7 @@
   const container = document.getElementById("plan");
   const search = document.getElementById("search");
   let currentMonth = -1;
-
-  // nächsten Samstag ermitteln
-  const today = new Date();
-  today.setHours(0,0,0,0);
-
-  function getNextSaturday() {
-    const d = new Date(today);
-    const day = d.getDay();
-    const diff = (6 - day + 7) % 7 || 7;
-    d.setDate(d.getDate() + diff);
-    return d.toISOString().slice(0,10);
-  }
-
-  const nextSaturday = getNextSaturday();
+  const today = new Date().toISOString().slice(0,10);
 
   function render(filter = "") {
     container.innerHTML = "";
@@ -138,4 +96,35 @@
     Object.keys(plan).forEach(date => {
       if (filter && !plan[date].toLowerCase().includes(filter)) return;
 
-      const d =
+      const d = new Date(date);
+      if (d.getMonth() !== currentMonth) {
+        currentMonth = d.getMonth();
+        const m = document.createElement("div");
+        m.className = "month";
+        m.innerHTML = `<h2>${d.toLocaleDateString("de-DE",{month:"long",year:"numeric"})}</h2>`;
+        container.appendChild(m);
+      }
+
+      const div = document.createElement("div");
+      div.className = "day";
+      if (date === today) div.classList.add("today");
+
+      const ds = d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+      const subject = encodeURIComponent(`Tauschwunsch ${ds}.2026`);
+      const body = encodeURIComponent(`Hallo,\n\nich möchte den Dienst am ${ds}.2026 tauschen.`);
+
+      div.innerHTML = `
+        <div>${ds}</div>
+        <div class="name">${plan[date]}</div>
+        <a href="mailto:${mailAdresse}?subject=${subject}&body=${body}">Tausch</a>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  search.addEventListener("input", e => render(e.target.value.toLowerCase()));
+  render();
+</script>
+
+</body>
+</html>
