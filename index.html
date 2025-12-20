@@ -1,139 +1,129 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bereitschaftsplan 2026 – Samstagsdienst</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bereitschaftsplan 2026</title>
+
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-family: system-ui, sans-serif;
+      background: #f4f6f8;
       margin: 0;
-      background: #f5f6f8;
-      color: #222;
     }
     header {
       background: #1f2937;
       color: white;
-      padding: 1.2rem;
+      padding: 1rem;
       text-align: center;
     }
-    header h1 {
-      margin: 0;
-      font-size: 1.4rem;
-    }
     .container {
-      max-width: 700px;
-      margin: 0 auto;
+      max-width: 720px;
+      margin: auto;
       padding: 1rem;
+    }
+    .search {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
     }
     .month {
       margin-top: 2rem;
     }
     .month h2 {
-      font-size: 1.2rem;
       border-bottom: 2px solid #e5e7eb;
       padding-bottom: 0.3rem;
-      color: #111827;
     }
     .day {
+      background: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: white;
-      padding: 0.6rem 0.8rem;
+      padding: 0.6rem;
       margin: 0.4rem 0;
       border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
-    .date {
-      font-weight: 600;
+    .today {
+      border: 2px solid #16a34a;
+      background: #ecfdf5;
     }
     .name {
+      font-weight: 600;
       color: #2563eb;
-      font-weight: 500;
     }
-    .swap {
+    a {
       text-decoration: none;
-      font-size: 0.85rem;
       background: #2563eb;
       color: white;
       padding: 0.3rem 0.6rem;
       border-radius: 6px;
+      font-size: 0.85rem;
     }
-    footer {
-      text-align: center;
-      font-size: 0.75rem;
-      color: #6b7280;
-      margin: 2rem 0 1rem;
+    @media print {
+      header, .search, a {
+        display: none;
+      }
+      body {
+        background: white;
+      }
     }
   </style>
 </head>
-<body>
 
+<body>
 <header>
   <h1>Bereitschaftsplan – Samstagsdienst 2026</h1>
-  <div>Bei Tauschwunsch bitte über den Button melden</div>
 </header>
 
-<div class="container" id="plan"></div>
+<div class="container">
+  <input class="search" id="search" placeholder="Name suchen …">
+  <div id="plan"></div>
+</div>
 
-<footer>
-  Stand: automatisch · Änderungen nur durch Koordinator
-</footer>
+<script src="plan.js"></script>
 
 <script>
-  // >>>>> HIER ANPASSEN <<<<<
-  const personen = [
-    "Steven",
-    "Danny",
-    "Pascal",
-    "Feleix",
-    "Peter",
-    "Olivier",
-    "Formoli"
-  ];
-
-  const mailAdresse = "p.lenzky@nobaxx.de";
-
-  // >>>>> AB HIER NICHT MEHR ANFASSEN <<<<<
-
   const container = document.getElementById("plan");
-  const start = new Date("2026-01-03"); // erster Samstag 2026
-  let personIndex = 0;
+  const search = document.getElementById("search");
   let currentMonth = -1;
+  const today = new Date().toISOString().slice(0,10);
 
-  for (let i = 0; i < 53; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i * 7);
-    if (d.getFullYear() !== 2026) break;
+  function render(filter = "") {
+    container.innerHTML = "";
+    currentMonth = -1;
 
-    if (d.getMonth() !== currentMonth) {
-      currentMonth = d.getMonth();
-      const monthDiv = document.createElement("div");
-      monthDiv.className = "month";
-      monthDiv.innerHTML = `<h2>${d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</h2>`;
-      container.appendChild(monthDiv);
-    }
+    Object.keys(plan).forEach(date => {
+      if (filter && !plan[date].toLowerCase().includes(filter)) return;
 
-    const dayDiv = document.createElement("div");
-    dayDiv.className = "day";
+      const d = new Date(date);
+      if (d.getMonth() !== currentMonth) {
+        currentMonth = d.getMonth();
+        const m = document.createElement("div");
+        m.className = "month";
+        m.innerHTML = `<h2>${d.toLocaleDateString("de-DE",{month:"long",year:"numeric"})}</h2>`;
+        container.appendChild(m);
+      }
 
-    const name = personen[personIndex % personen.length];
-    personIndex++;
+      const div = document.createElement("div");
+      div.className = "day";
+      if (date === today) div.classList.add("today");
 
-    const dateStr = d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+      const ds = d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+      const subject = encodeURIComponent(`Tauschwunsch ${ds}.2026`);
+      const body = encodeURIComponent(`Hallo,\n\nich möchte den Dienst am ${ds}.2026 tauschen.`);
 
-    const subject = encodeURIComponent("Tauschwunsch Bereitschaft " + dateStr + "/2026");
-    const body = encodeURIComponent(`Hallo,\n\nich hätte gerne einen Tauschwunsch für den Samstag ${dateStr}.\n\nDanke!`);
-
-    dayDiv.innerHTML = `
-      <div class="date">${dateStr}</div>
-      <div class="name">${name}</div>
-      <a class="swap" href="mailto:${mailAdresse}?subject=${subject}&body=${body}">Tausch</a>
-    `;
-
-    container.appendChild(dayDiv);
+      div.innerHTML = `
+        <div>${ds}</div>
+        <div class="name">${plan[date]}</div>
+        <a href="mailto:${mailAdresse}?subject=${subject}&body=${body}">Tausch</a>
+      `;
+      container.appendChild(div);
+    });
   }
+
+  search.addEventListener("input", e => render(e.target.value.toLowerCase()));
+  render();
 </script>
 
 </body>
