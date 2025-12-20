@@ -1,5 +1,5 @@
 const plan = {
-  "2026-01-03": "Person 1",
+  "2026-01-03": "Peter statt Danny",
   "2026-01-10": "Person 2",
   "2026-01-17": "Person 3",
   "2026-01-24": "Person 4",
