@@ -155,12 +155,12 @@
 
       const ds = d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
       const subject = encodeURIComponent(`Tauschwunsch ${ds}.2026`);
-      const body = encodeURIComponent(`Hallo,\n\nich möchte den Dienst am ${ds}.2026 tauschen.`);
+      const body = encodeURIComponent(`Hallo,\n\nich möchte den Dienst am ${ds}.2026 mit  XXX  am   .2026 tauschen, ich habe das mit ihm besprochen.`);
 
       row.innerHTML = `
         <div>${ds}${badge}</div>
         <div class="name">${plan[date]}</div>
-        <a href="mailto:${mailAdresse}?subject=${subject}&body=${body}">Tausch</a>
+        <a href="mailto:${mailAdresse}?subject=${subject}&body=${body}">Tauschwusch</a>
       `;
 
       planDiv.appendChild(row);
