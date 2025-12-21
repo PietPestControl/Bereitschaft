@@ -1,125 +1,174 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bereitschaftsplan 2026</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bereitschaftsplan 2026</title>
 
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-    }
-    header {
-      background: #0bd60b;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    .container {
-      max-width: 720px;
-      margin: auto;
-      padding: 1rem;
-    }
-    .search {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-    }
-    .month {
-      margin-top: 2rem;
-    }
-    .month h2 {
-      border-bottom: 2px solid #e5e7eb;
-      padding-bottom: 0.3rem;
-    }
-    .day {
-      background: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.6rem;
-      margin: 0.4rem 0;
-      border-radius: 8px;
-    }
-    .today {
-      border: 2px solid #16a34a;
-      background: #ecfdf5;
-    }
-    .name {
-      font-weight: 600;
-      color: #2563eb;
-    }
-    a {
-      text-decoration: none;
-      background: #2563eb;
-      color: white;
-      padding: 0.3rem 0.6rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-    }
-    @media print {
-      header, .search, a {
-        display: none;
-      }
-      body {
-        background: white;
-      }
-    }
-  </style>
+<style>
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #f4f6f8;
+  }
+
+  /* FIXER BEREICH */
+  .top {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #1f2937;
+    color: #fff;
+    padding: 1rem;
+  }
+
+  .top h1 {
+    margin: 0 0 .5rem 0;
+    text-align: center;
+    font-size: 1.3rem;
+  }
+
+  .search {
+    width: 100%;
+    padding: .5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: auto;
+    padding: 1rem;
+  }
+
+  .month {
+    margin-top: 2rem;
+  }
+
+  .month h2 {
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: .3rem;
+  }
+
+  .day {
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .6rem;
+    margin: .4rem 0;
+    border-radius: 8px;
+  }
+
+  .next {
+    border: 2px solid #16a34a;
+    background: #ecfdf5;
+  }
+
+  .badge {
+    font-size: .7rem;
+    color: #16a34a;
+    font-weight: 600;
+    margin-left: .5rem;
+  }
+
+  .name {
+    font-weight: 600;
+    color: #2563eb;
+  }
+
+  a {
+    background: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    padding: .3rem .6rem;
+    border-radius: 6px;
+    font-size: .85rem;
+  }
+
+  @media print {
+    .top, a { display: none; }
+    body { background: #fff; }
+  }
+</style>
 </head>
 
 <body>
-<header>
-  <h1>Bereitschaft Nord 2026</h1>
-</header>
+
+<div class="top">
+  <h1>Bereitschaftsplan – Samstagsdienst 2026</h1>
+  <input id="search" class="search" placeholder="Name suchen …">
+</div>
 
 <div class="container">
-  <input class="search" id="search" placeholder="Name suchen …">
   <div id="plan"></div>
 </div>
 
 <script src="plan.js"></script>
-
 <script>
-  const container = document.getElementById("plan");
+  const planDiv = document.getElementById("plan");
   const search = document.getElementById("search");
-  let currentMonth = -1;
-  const today = new Date().toISOString().slice(0,10);
+
+  // nächsten Samstag bestimmen
+  function nextSaturday() {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    const diff = (6 - d.getDay() + 7) % 7 || 7;
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().slice(0,10);
+  }
+
+  const nextSat = nextSaturday();
+  let firstNextElement = null;
 
   function render(filter = "") {
-    container.innerHTML = "";
-    currentMonth = -1;
+    planDiv.innerHTML = "";
+    let currentMonth = -1;
+    firstNextElement = null;
 
     Object.keys(plan).forEach(date => {
       if (filter && !plan[date].toLowerCase().includes(filter)) return;
 
       const d = new Date(date);
+
       if (d.getMonth() !== currentMonth) {
         currentMonth = d.getMonth();
         const m = document.createElement("div");
         m.className = "month";
         m.innerHTML = `<h2>${d.toLocaleDateString("de-DE",{month:"long",year:"numeric"})}</h2>`;
-        container.appendChild(m);
+        planDiv.appendChild(m);
       }
 
-      const div = document.createElement("div");
-      div.className = "day";
-      if (date === today) div.classList.add("today");
+      const row = document.createElement("div");
+      row.className = "day";
+
+      let badge = "";
+      if (date === nextSat) {
+        row.classList.add("next");
+        badge = `<span class="badge">Nächster Dienst</span>`;
+        firstNextElement = row;
+      }
 
       const ds = d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
       const subject = encodeURIComponent(`Tauschwunsch ${ds}.2026`);
       const body = encodeURIComponent(`Hallo,\n\nich möchte den Dienst am ${ds}.2026 tauschen.`);
 
-      div.innerHTML = `
-        <div>${ds}</div>
+      row.innerHTML = `
+        <div>${ds}${badge}</div>
         <div class="name">${plan[date]}</div>
         <a href="mailto:${mailAdresse}?subject=${subject}&body=${body}">Tausch</a>
       `;
-      container.appendChild(div);
+
+      planDiv.appendChild(row);
     });
+
+    // automatisch zum nächsten Samstag scrollen
+    if (firstNextElement && !filter) {
+      setTimeout(() => {
+        firstNextElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 200);
+    }
   }
 
   search.addEventListener("input", e => render(e.target.value.toLowerCase()));
