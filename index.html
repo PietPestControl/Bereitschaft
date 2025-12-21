@@ -12,32 +12,63 @@
     background: #f4f6f8;
   }
 
-  /* FIXER BEREICH */
-  .top {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: #088508;
-    color: #fff;
-    padding: 1rem;
-  }
+/* ===== Moderne Kopfzeile ===== */
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
 
-  .top h1 {
-    margin: 0 0 .5rem 0;
-    text-align: center;
-    font-size: 1.3rem;
-  }
+.top-inner {
+  max-width: 720px;
+  margin: auto;
+  padding: .7rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* linke Seite */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background: #16a34a;
+  border-radius: 50%;
+}
+
+.top h1 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+}
+
 
 .search {
   width: 500px;
   max-width: 100%;
-  padding: .5rem;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: none;
-  display: block;
-  margin: 0 auto;
+  padding: .45rem .9rem;
+  font-size: .95rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
 }
+
+.search:focus {
+  outline: none;
+  border-color: #16a34a;
+  background: #ffffff;
+}
+
 
   .container {
     max-width: 720px;
@@ -100,9 +131,16 @@
 <body>
 
 <div class="top">
-  <h1>Bereitschaft Nord 2026</h1>
-  <input id="search" class="search" placeholder="Name suchen …">
+  <div class="top-inner">
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Bereitschaft Nord 2026</h1>
+    </div>
+
+    <input id="search" class="search" placeholder="Name suchen …">
+  </div>
 </div>
+
 
 <div class="container">
   <div id="plan"></div>
