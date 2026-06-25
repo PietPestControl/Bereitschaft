@@ -61,7 +61,7 @@ const plan = {
   "2026-12-05": "Olivier",
   "2026-12-12": "Felix",
   "2026-12-19": "Pascal",
-  "2026-12-26": "Feiertag"
+  "2026-12-26": "FEIERTAG"
 };
 
 const mailAdresse = "p.lenzky@nobaxx.de";
